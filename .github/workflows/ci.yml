@@ -13,13 +13,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.11', '3.12', '3.13']
         exclude:
           # Reduce matrix size by excluding some combinations
           - os: macos-latest
-            python-version: '3.8'
-          - os: macos-latest
-            python-version: '3.9'
+            python-version: '3.11'
 
     steps:
     - name: Checkout code
@@ -141,7 +139,7 @@ jobs:
         pip install -r requirements-dev.txt
 
     - name: Run safety check
-      run: safety check --json --output safety-report.json || true
+      run: safety check --output json > safety-report.json || true
 
     - name: Run bandit security check
       run: bandit -r dtools/ -f json -o bandit-report.json || true
