@@ -1,7 +1,11 @@
 -r requirements.txt
-pytest>=6.0.0
-pytest-cov
+pytest>=7.0.0
+pytest-cov>=4.0.0
 black
-flake8
+flake8>=5.0.0
 mypy
-pytest-html
+pytest-html>=3.1.0
+safety>=2.0.0
+bandit>=1.7.0
+build>=0.10.0
+twine>=4.0.0
