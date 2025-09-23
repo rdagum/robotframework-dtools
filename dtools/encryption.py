@@ -21,18 +21,28 @@ class Bcolors:
 
 
 class Encryption:
-    def __init__(self, key_file_path: Optional[str] = None):
-        try:
-            key_path = key_file_path or self._get_default_key_path()
-            with open(key_path, "r") as f:
-                key_data = json.load(f)
-            # self._key = eval(key_data.get("encryption_key"))
-            self._key = ast.literal_eval(key_data.get("encryption_key"))
-            if not self._key:
-                raise ValueError("encryption_key not found in configuration")
+    def __init__(
+        self, encryption_key: Optional[str] = None, key_file_path: Optional[str] = None
+    ):
+        if encryption_key:
+            # Use the provided key directly
+            self._key = encryption_key
+            if isinstance(self._key, str):
+                self._key = self._key.encode()
             self._encrypter = Fernet(self._key)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Encryption key file not found: {key_path}")
+        else:
+            # Load from configuration file (existing logic)
+            try:
+                key_path = key_file_path or self._get_default_key_path()
+                with open(key_path, "r") as f:
+                    key_data = json.load(f)
+                encryption_key = key_data.get("encryption_key")
+                if not encryption_key:
+                    raise ValueError("encryption_key not found in configuration")
+                self._key = ast.literal_eval(encryption_key)
+                self._encrypter = Fernet(self._key)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Encryption key file not found: {key_path}")
 
     def decrypt(self, value: bytes) -> str:
         value = self._encrypter.decrypt(value)
