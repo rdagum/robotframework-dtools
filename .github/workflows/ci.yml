@@ -1,95 +1,31 @@
-name: CI
+name: ci-release
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         exclude:
           # Reduce matrix size by excluding some combinations
           - os: macos-latest
-            python-version: '3.11'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/pip
-          %APPDATA%\pip\Cache
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-dev.txt
-        pip install -e .
-
-    - name: Lint with flake8
-      run: |
-        # Stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # Exit-zero treats all errors as warnings
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
-
-    - name: Type check with mypy
-      if: matrix.python-version != '3.8'
-      run: |
-        mypy dtools/ --ignore-missing-imports --no-strict-optional --allow-untyped-defs --allow-any-generics --disable-error-code=no-any-return
-      continue-on-error: true
-
-    - name: Format check with black
-      run: |
-        black --check --diff .
-
-    - name: Create reports directory
-      run: |
-        mkdir -p reports
-
-    - name: Run Python tests with pytest
-      run: |
-        pytest tests/ --verbose --junit-xml=reports/junit.xml --cov=dtools --cov-report=xml --cov-report=html --cov-report=term-missing
-
-    - name: Run Robot Framework tests
-      run: |
-        robot --outputdir reports/robot tests/test_dtools.robot
-      continue-on-error: true
-
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results-${{ matrix.os }}-py${{ matrix.python-version }}
-        path: |
-          reports/
-          htmlcov/
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
+            python-version: '3.8'
+          - os: macos-latest
+            python-version: '3.9'
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      os: ${{ matrix.os }}
+      run-mypy: true
+      run-robot-tests: true
+      upload-coverage: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' }}
 
   build:
     runs-on: ubuntu-latest
