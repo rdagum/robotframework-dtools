@@ -1,6 +1,5 @@
 """Tests for the DTools Robot Framework library."""
 
-import pytest
 import json
 from datetime import datetime
 from dtools.dtools import DTools
