@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union
 from robot.api.deco import keyword, library
 from robot.libraries.BuiltIn import BuiltIn
+from .encryption import Encryption
 
 
 @library(scope="GLOBAL", version="1.0.0")
@@ -27,6 +28,7 @@ class DTools:
     - Data generation and validation
     - JSON operations
     - Random data generation
+    - Encryption and decryption utilities
     """
 
     ROBOT_LIBRARY_SCOPE = "GLOBAL"
@@ -364,3 +366,70 @@ class DTools:
             | @{sorted} | Sort List By Key | ${list_of_dicts} | name | reverse=True |
         """
         return sorted(input_list, key=lambda x: x.get(key, ""), reverse=reverse)
+
+    # Encryption Utilities
+    @keyword("Encrypt Text")
+    def encrypt_text(self, text: str, encryption_key: Optional[str] = None) -> str:
+        """Encrypt text using Fernet encryption.
+
+        Args:
+            text: Text to encrypt
+            encryption_key: Optional encryption key. If not provided, uses default key file
+
+        Returns:
+            Base64 encoded encrypted text
+
+        Example:
+            | ${encrypted} | Encrypt Text | Hello World |
+            | ${encrypted} | Encrypt Text | Hello World | ${my_key} |
+        """
+        try:
+            encryptor = Encryption(encryption_key=encryption_key)
+            encrypted_bytes = encryptor.encrypt(text)
+            # Convert bytes to base64 string for Robot Framework compatibility
+            import base64
+
+            return base64.b64encode(encrypted_bytes).decode("utf-8")
+        except Exception as e:
+            raise RuntimeError(f"Encryption failed: {str(e)}")
+
+    @keyword("Decrypt Text")
+    def decrypt_text(
+        self, encrypted_text: str, encryption_key: Optional[str] = None
+    ) -> str:
+        """Decrypt text using Fernet encryption.
+
+        Args:
+            encrypted_text: Base64 encoded encrypted text to decrypt
+            encryption_key: Optional encryption key. If not provided, uses default key file
+
+        Returns:
+            Decrypted text
+
+        Example:
+            | ${decrypted} | Decrypt Text | ${encrypted_text} |
+            | ${decrypted} | Decrypt Text | ${encrypted_text} | ${my_key} |
+        """
+        try:
+            encryptor = Encryption(encryption_key=encryption_key)
+            # Convert base64 string back to bytes
+            import base64
+
+            encrypted_bytes = base64.b64decode(encrypted_text.encode("utf-8"))
+            return encryptor.decrypt(encrypted_bytes)
+        except Exception as e:
+            raise RuntimeError(f"Decryption failed: {str(e)}")
+
+    @keyword("Generate Encryption Key")
+    def generate_encryption_key(self) -> str:
+        """Generate a new Fernet encryption key.
+
+        Returns:
+            Base64 encoded encryption key
+
+        Example:
+            | ${key} | Generate Encryption Key |
+        """
+        from cryptography.fernet import Fernet
+
+        return Fernet.generate_key().decode("utf-8")
