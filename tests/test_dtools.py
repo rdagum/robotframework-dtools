@@ -53,7 +53,7 @@ class TestDTools:
         """Test UUID generation."""
         result = self.dtools.generate_uuid()
         assert len(result) == 36  # Standard UUID length with hyphens
-        assert result.count('-') == 4
+        assert result.count("-") == 4
 
     def test_generate_random_email(self):
         """Test random email generation."""

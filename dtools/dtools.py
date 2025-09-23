@@ -16,7 +16,7 @@ from robot.api.deco import keyword, library
 from robot.libraries.BuiltIn import BuiltIn
 
 
-@library(scope='GLOBAL', version='1.0.0')
+@library(scope="GLOBAL", version="1.0.0")
 class DTools:
     """DTools is a Robot Framework library that provides general utilities for test automation.
 
@@ -29,8 +29,8 @@ class DTools:
     - Random data generation
     """
 
-    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    ROBOT_LIBRARY_VERSION = '1.0.0'
+    ROBOT_LIBRARY_SCOPE = "GLOBAL"
+    ROBOT_LIBRARY_VERSION = "1.0.0"
 
     def __init__(self) -> None:
         """Initialize the DTools library."""
@@ -66,7 +66,7 @@ class DTools:
         else:
             char_set = chars
 
-        return ''.join(random.choice(char_set) for _ in range(int(length)))
+        return "".join(random.choice(char_set) for _ in range(int(length)))
 
     @keyword("Clean String")
     def clean_string(self, text: str, remove_chars: str = " \t\n\r") -> str:
@@ -99,7 +99,7 @@ class DTools:
         Example:
             | @{numbers} | Extract Numbers From String | Price: $123.45, Tax: $12.34 |
         """
-        return re.findall(r'\d+\.?\d*', text)
+        return re.findall(r"\d+\.?\d*", text)
 
     # Date and Time Utilities
     @keyword("Get Current Timestamp")
@@ -119,13 +119,13 @@ class DTools:
 
     @keyword("Add Time To Date")
     def add_time_to_date(
-            self,
-            date_string: str,
-            days: int = 0,
-            hours: int = 0,
-            minutes: int = 0,
-            input_format: str = "%Y-%m-%d",
-            output_format: str = "%Y-%m-%d"
+        self,
+        date_string: str,
+        days: int = 0,
+        hours: int = 0,
+        minutes: int = 0,
+        input_format: str = "%Y-%m-%d",
+        output_format: str = "%Y-%m-%d",
     ) -> str:
         """Add time to a given date.
         Args:
@@ -189,7 +189,7 @@ class DTools:
             | ${hash} | Calculate File Hash | /path/to/file.txt | sha256 |
         """
         hash_func = getattr(hashlib, algorithm.lower())()
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_func.update(chunk)
         return hash_func.hexdigest()
@@ -246,7 +246,9 @@ class DTools:
         return json.loads(json_string)
 
     @keyword("Convert To JSON String")
-    def convert_to_json_string(self, data: Union[Dict, List], indent: Optional[int] = None) -> str:
+    def convert_to_json_string(
+        self, data: Union[Dict, List], indent: Optional[int] = None
+    ) -> str:
         """Convert data to JSON string.
 
         Args:
@@ -280,7 +282,7 @@ class DTools:
         else:
             data = json_data
 
-        keys = json_path.split('.')
+        keys = json_path.split(".")
         result = data
         for key in keys:
             if isinstance(result, dict) and key in result:
@@ -303,7 +305,7 @@ class DTools:
         Example:
             | ${is_valid} | Validate Email Format | user@domain.com |
         """
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         return bool(re.match(pattern, email))
 
     @keyword("Validate URL Format")
@@ -319,7 +321,7 @@ class DTools:
         Example:
             | ${is_valid} | Validate URL Format | https://example.com |
         """
-        pattern = r'^https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/(?:[\w\/_.])*(?:\?(?:[\w&=%.]*))?(?:\#(?:[\w.]*))?)?$'
+        pattern = r"^https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/(?:[\w\/_.])*(?:\?(?:[\w&=%.]*))?(?:\#(?:[\w.]*))?)?$"
         return bool(re.match(pattern, url))
 
     # List Utilities
@@ -345,7 +347,9 @@ class DTools:
         return result
 
     @keyword("Sort List By Key")
-    def sort_list_by_key(self, input_list: List[Dict], key: str, reverse: bool = False) -> List[Dict]:
+    def sort_list_by_key(
+        self, input_list: List[Dict], key: str, reverse: bool = False
+    ) -> List[Dict]:
         """Sort a list of dictionaries by a specific key.
 
         Args:
@@ -359,4 +363,4 @@ class DTools:
         Example:
             | @{sorted} | Sort List By Key | ${list_of_dicts} | name | reverse=True |
         """
-        return sorted(input_list, key=lambda x: x.get(key, ''), reverse=reverse)
+        return sorted(input_list, key=lambda x: x.get(key, ""), reverse=reverse)

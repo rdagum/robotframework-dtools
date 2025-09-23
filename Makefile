@@ -1,4 +1,4 @@
-.PHONY: venv venv-check install-dev install clean-venv reset-env test lint venv-info help
+.PHONY: venv venv-check install-dev install clean-venv reset-env test lint format format-check venv-info help
 
 help:
 	@echo Available commands:
@@ -9,6 +9,8 @@ help:
 	@echo   reset-env   - Clean and recreate environment
 	@echo   test        - Run tests
 	@echo   lint        - Run linting
+	@echo   format      - Format code with black
+	@echo   format-check - Check code formatting with black
 	@echo   venv-info   - Show virtual environment information
 	@echo   help        - Show this help
 
@@ -70,6 +72,17 @@ test-coverage: venv-check
 # Run linting in virtual environment  
 lint: venv-check
 	$(PYTHON_VENV) -m flake8
+
+# Format code with black
+format: venv-check
+	@echo Formatting code with black...
+	$(PYTHON_VENV) -m black .
+	@echo Code formatting complete!
+
+# Check code formatting with black
+format-check: venv-check
+	@echo Checking code formatting with black...
+	$(PYTHON_VENV) -m black --check --diff .
 
 # Show virtual environment info
 venv-info:
