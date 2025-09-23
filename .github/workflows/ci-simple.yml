@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  push:
+    branches: [ develop, feature/*, bugfix/*, hotfix/* ]
+  pull_request:
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      python-version: '3.12'
+      os: 'ubuntu-latest'
+      run-mypy: false
+      run-robot-tests: false
+      upload-coverage: false
