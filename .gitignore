@@ -165,6 +165,10 @@ log.html
 report.html
 selenium-screenshot-*.png
 
+# Generated Robot Framework documentation (root level - moved to docs/)
+dtools_keywords.html
+dtools_encryption_keywords.html
+
 # IDE files
 .vscode/
 .idea/

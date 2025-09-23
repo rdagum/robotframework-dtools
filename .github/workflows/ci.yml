@@ -110,10 +110,12 @@ jobs:
 
     - name: Generate Robot Framework documentation
       run: |
-        python -m robot.libdoc dtools.DTools dtools_keywords.html
+        mkdir -p docs
+        python -m robot.libdoc dtools.DTools docs/dtools_keywords.html
+        python -m robot.libdoc dtools.encryption.Encryption docs/dtools_encryption_keywords.html
 
     - name: Upload documentation
       uses: actions/upload-artifact@v4
       with:
         name: documentation
-        path: dtools_keywords.html
+        path: docs/

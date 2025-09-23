@@ -1,4 +1,4 @@
-.PHONY: venv venv-check install-dev install clean-venv reset-env test lint format format-check safety venv-info help
+.PHONY: venv venv-check install-dev install clean-venv reset-env test lint format format-check safety venv-info docs help
 
 help:
 	@echo Available commands:
@@ -12,6 +12,7 @@ help:
 	@echo   format      - Format code with black
 	@echo   format-check - Check code formatting with black
 	@echo   safety      - Run safety check for vulnerabilities
+	@echo   docs        - Generate Robot Framework documentation
 	@echo   venv-info   - Show virtual environment information
 	@echo   help        - Show this help
 
@@ -99,3 +100,11 @@ venv-info:
 	) else ( \
 		echo No virtual environment found. Run 'make venv' to create one. \
 	)
+
+# Generate Robot Framework documentation
+docs: venv-check
+	@echo Generating Robot Framework documentation...
+	@if not exist "docs" mkdir docs
+	$(PYTHON_VENV) -m robot.libdoc dtools.DTools docs/dtools_keywords.html
+	$(PYTHON_VENV) -m robot.libdoc dtools.encryption.Encryption docs/dtools_encryption_keywords.html
+	@echo Documentation generated in docs/ folder!

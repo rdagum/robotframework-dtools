@@ -317,6 +317,37 @@ mypy dtools/
 5. Run the test suite
 6. Submit a pull request
 
+## Development
+
+### Generating Documentation
+
+The library documentation can be generated using the Makefile:
+
+```bash
+make docs
+```
+
+This will generate HTML documentation files in the `docs/` folder:
+- `docs/dtools_keywords.html` - Main library documentation
+- `docs/dtools_encryption_keywords.html` - Encryption module documentation
+
+### Running Tests
+
+Run all tests with:
+
+```bash
+make test
+```
+
+### Code Quality
+
+Format code and run linting:
+
+```bash
+make format
+make lint
+```
+
 ## License
 
 This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
