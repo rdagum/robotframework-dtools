@@ -138,8 +138,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
 
-    - name: Run safety check
-      run: safety check --output json > safety-report.json || true
+    - name: Run safety scan
+      uses: pyupio/safety-action@v1
+      with:
+        api-key: ${{ secrets.SAFETY_API_KEY }}
+      continue-on-error: true
 
     - name: Run bandit security check
       run: bandit -r dtools/ -f json -o bandit-report.json || true
@@ -150,7 +153,6 @@ jobs:
       with:
         name: security-reports
         path: |
-          safety-report.json
           bandit-report.json
 
   documentation:
