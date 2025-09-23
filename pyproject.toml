@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "A Robot Framework library providing general utilities for test automation"
 readme = "README.md"
 authors = [
-    {name = "Robot Framework Community"}
+    {name = "Rodolfo Dagum", email = "rodolfo.dagum@gmail.com"}
 ]
 license = {text = "Apache-2.0"}
 keywords = ["robotframework", "testing", "automation", "utilities"]

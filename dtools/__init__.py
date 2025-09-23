@@ -6,8 +6,8 @@ test suites to simplify common tasks and operations.
 """
 
 __version__ = "1.0.0"
-__author__ = "Robot Framework Community"
-__email__ = "community@robotframework.org"
+__author__ = "Rodolfo Dagum"
+__email__ = "rpdev@outlook.com"
 
 from .dtools import DTools
 

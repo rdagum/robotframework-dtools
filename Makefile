@@ -1,52 +1,82 @@
-.PHONY: help install install-dev test test-unit test-robot lint format type-check clean build docs
+.PHONY: venv venv-check install-dev install clean-venv reset-env test lint venv-info help
 
 help:
-	@echo "Available commands:"
-	@echo "  install     Install the package"
-	@echo "  install-dev Install development dependencies"
-	@echo "  test        Run all tests"
-	@echo "  test-unit   Run Python unit tests"
-	@echo "  test-robot  Run Robot Framework tests"
-	@echo "  lint        Run code linting"
-	@echo "  format      Format code with Black"
-	@echo "  type-check  Run type checking with MyPy"
-	@echo "  clean       Clean build artifacts"
-	@echo "  build       Build distribution packages"
+	@echo Available commands:
+	@echo   venv        - Create virtual environment
+	@echo   install-dev - Install development dependencies
+	@echo   install     - Install production dependencies
+	@echo   clean-venv  - Remove virtual environment
+	@echo   reset-env   - Clean and recreate environment
+	@echo   test        - Run tests
+	@echo   lint        - Run linting
+	@echo   venv-info   - Show virtual environment information
+	@echo   help        - Show this help
 
-install:
-	pip install -e .
+# Python and virtual environment settings
+PYTHON := python
+VENV := .venv
+VENV_BIN := $(VENV)/Scripts
+PIP := $(VENV_BIN)/pip
+PYTHON_VENV := $(VENV_BIN)/python
 
-install-dev:
-	pip install -r requirements-dev.txt
-	pip install -e .
+# Check if virtual environment exists
+venv-check:
+	@if not exist "$(VENV)" ( \
+		echo Virtual environment not found. Run 'make venv' first. && \
+		exit /b 1 \
+	)
 
-test: test-unit test-robot
+# Create virtual environment
+venv:
+	@echo Creating virtual environment...
+	$(PYTHON) -m venv $(VENV)
+	@echo Virtual environment created in $(VENV)
+	@echo Run 'make install-dev' to install dependencies
 
-test-unit:
-	pytest tests/test_dtools.py -v --cov=dtools --cov-report=html
+# Install development dependencies in virtual environment
+install-dev: venv-check
+	@echo Installing development dependencies...
+	$(PIP) install -r requirements-dev.txt
+	$(PIP) install -e .
+	@echo Development environment setup complete!
 
-test-robot:
-	robot tests/test_dtools.robot
+# Install production dependencies only
+install: venv-check
+	@echo Installing production dependencies...
+	$(PIP) install .
 
-lint:
-	flake8 dtools/
+# Clean virtual environment
+clean-venv:
+	@if exist "$(VENV)" ( \
+		echo Removing virtual environment... && \
+		rmdir /s /q "$(VENV)" \
+	)
 
-format:
-	black dtools/ tests/
+# Reset environment (clean and recreate)
+reset-env: clean-venv venv install-dev
 
-type-check:
-	mypy dtools/
+# Run tests in virtual environment
+test: venv-check
+	$(PYTHON_VENV) -m pytest --html=reports/report.html --self-contained-html
 
-clean:
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info/
-	rm -rf htmlcov/
-	rm -rf .pytest_cache/
-	rm -rf .mypy_cache/
-	find . -type d -name __pycache__ -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	rm -f output.xml log.html report.html
+# Run tests with JUnit XML (for CI/CD)
+test-ci: venv-check
+	$(PYTHON_VENV) -m pytest --junit-xml=reports/junit.xml
 
-build:
-	python -m build
+# Run tests with coverage report
+test-coverage: venv-check
+	$(PYTHON_VENV) -m pytest --cov=. --cov-report=html:htmlcov --cov-report=term
+
+# Run linting in virtual environment  
+lint: venv-check
+	$(PYTHON_VENV) -m flake8
+
+# Show virtual environment info
+venv-info:
+	@if exist "$(VENV)" ( \
+		echo Virtual environment: $(VENV) && \
+		echo Python: $(PYTHON_VENV) && \
+		echo Pip: $(PIP) \
+	) else ( \
+		echo No virtual environment found. Run 'make venv' to create one. \
+	)
