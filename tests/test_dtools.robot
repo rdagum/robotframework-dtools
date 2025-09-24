@@ -80,3 +80,44 @@ Test List Utilities
     ${second_name}=        Get From Dictionary    ${sorted_list[1]}    name
     Should Be Equal        ${first_name}    Alice
     Should Be Equal        ${second_name}    Bob
+
+Test Suite Folder Tagging
+    [Documentation]    Test suite folder tagging functionality
+    # Test basic functionality
+    @{tags}=           Set Suite Folders As Tags    C:\\tests\\feature\\subfolder\\test_suite.robot    C:\\tests
+    @{expected}=       Create List    level0:feature    level1:subfolder    level2:test_suite
+    Lists Should Be Equal    ${tags}    ${expected}
+    
+    # Test with Unix paths
+    @{unix_tags}=      Set Suite Folders As Tags    /home/tests/api/login/auth_test.robot    /home/tests    delimiter=/
+    @{expected_unix}=  Create List    level0:api    level1:login    level2:auth_test
+    Lists Should Be Equal    ${unix_tags}    ${expected_unix}
+    
+    # Test with product folder
+    @{product_tags}=   Set Suite Folders As Tags    C:\\tests\\myproduct\\feature\\test_suite.robot    C:\\tests    first_folder_is_product=True
+    @{expected_product}=    Create List    product:myproduct    level0:feature    level1:test_suite
+    Lists Should Be Equal    ${product_tags}    ${expected_product}
+    
+    # Test max levels
+    @{limited_tags}=   Set Suite Folders As Tags    C:\\tests\\l1\\l2\\l3\\l4\\l5\\test.robot    C:\\tests    max_levels=3
+    @{expected_limited}=    Create List    level0:l1    level1:l2    level2:l3
+    Lists Should Be Equal    ${limited_tags}    ${expected_limited}
+    
+    # Test direct file in base path
+    @{direct_tags}=    Set Suite Folders As Tags    C:\\tests\\test.robot    C:\\tests
+    @{expected_direct}=    Create List    level0:test
+    Lists Should Be Equal    ${direct_tags}    ${expected_direct}
+
+Test Suite Folder Tagging Error Cases
+    [Documentation]    Test error handling for suite folder tagging
+    # Test empty suite source
+    Run Keyword And Expect Error    ValueError: suite_source and base_path cannot be empty
+    ...    Set Suite Folders As Tags    ${EMPTY}    C:\\tests
+    
+    # Test empty base path
+    Run Keyword And Expect Error    ValueError: suite_source and base_path cannot be empty
+    ...    Set Suite Folders As Tags    C:\\tests\\test.robot    ${EMPTY}
+    
+    # Test invalid base path
+    Run Keyword And Expect Error    ValueError: suite_source must start with base_path
+    ...    Set Suite Folders As Tags    C:\\other\\test.robot    C:\\tests

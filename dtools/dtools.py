@@ -433,3 +433,69 @@ class DTools:
         from cryptography.fernet import Fernet
 
         return Fernet.generate_key().decode("utf-8")
+
+    @keyword("Set Suite Folders As Tags")
+    def set_suite_folders_as_tags(
+        self,
+        suite_source: str,
+        base_path: str,
+        max_levels: int = 7,
+        first_folder_is_product: bool = False,
+        delimiter: str = "\\",
+    ) -> List[str]:
+        """Convert a test suite's file path into hierarchical tags based on folder structure.
+
+        This keyword creates tags from the folder structure of a Robot Framework test suite,
+        allowing for automatic categorization based on directory hierarchy.
+
+        Args:
+            suite_source: Full path to the Robot Framework test suite file
+            base_path: Base path to remove from the suite source
+            max_levels: Maximum number of folder levels to include (default: 7)
+            first_folder_is_product: If True, tag first folder as 'product:' (default: False)
+            delimiter: Path delimiter to use for splitting (default: '\\')
+
+        Returns:
+            List of formatted tag strings
+
+        Examples:
+            | @{tags} | Set Suite Folders As Tags | C:\\tests\\product\\feature\\suite.robot | C:\\tests |
+            | @{tags} | Set Suite Folders As Tags | /tests/api/login/test.robot | /tests | max_levels=3 |
+        """
+        # Input validation
+        if not suite_source or not base_path:
+            raise ValueError("suite_source and base_path cannot be empty")
+
+        if not suite_source.startswith(base_path):
+            raise ValueError("suite_source must start with base_path")
+
+        # Calculate relative path, handling .robot extension
+        relative_path = suite_source[len(base_path) :]
+        if relative_path.endswith(".robot"):
+            relative_path = relative_path[:-6]  # Remove .robot extension
+
+        # Split path into components
+        relative_path_array = relative_path.split("/")
+        if len(relative_path_array) == 1:
+            relative_path_array = relative_path.split(delimiter)
+
+        # Filter out empty components
+        relative_path_array = [item for item in relative_path_array if item]
+
+        # Adjust max_levels for product folder
+        effective_max_levels = max_levels + (1 if first_folder_is_product else 0)
+
+        # Truncate to max levels (more efficient than repeated deletion)
+        if len(relative_path_array) > effective_max_levels:
+            relative_path_array = relative_path_array[:effective_max_levels]
+
+        # Generate tags
+        tags = []
+        for i, item in enumerate(relative_path_array):
+            if first_folder_is_product and i == 0:
+                tags.append(f"product:{item}")
+            else:
+                level = i - 1 if first_folder_is_product else i
+                tags.append(f"level{level}:{item}")
+
+        return tags
